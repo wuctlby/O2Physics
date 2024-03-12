@@ -24,6 +24,7 @@
 #include "PWGHF/Core/HfHelper.h"
 #include "PWGHF/DataModel/CandidateSelectionTables.h"
 #include "PWGHF/DataModel/CandidateReconstructionTables.h"
+#include "PWGHF/DataModel/CandidateReconstructionTables.h"
 
 using namespace o2;
 using namespace o2::aod;
@@ -36,7 +37,12 @@ enum DecayChannel { DplusToPiKPi = 0,
                     DsToPiKK,
                     D0ToPiK };
 
-enum QvecEstimator { FV0A = 0,
+/*enum centralityEstimator { V0A = 0,
+                           T0M,
+                           T0A,
+                           T0C };*/
+
+enum qvecEstimator { FV0A = 0,
                      FT0M,
                      FT0A,
                      FT0C,
@@ -47,7 +53,7 @@ struct HfTaskFlowCharmHadrons {
   Configurable<float> zVtxMax{"zVtxMax", 10., "Max vertex coordinate z"};
   Configurable<int> harmonic{"harmonic", 2, "harmonic number"};
   Configurable<int> qvecDetector{"qvecDetector", 0, "Detector for Q vector estimation (FV0A: 0, FT0M: 1, FT0A: 2, FT0C: 3, TPC Pos: 4, TPC Neg: 5)"};
-  Configurable<int> centEstimator{"centEstimator", 4, "Centrality estimation (FT0A: 1, FT0C: 2, FT0M: 3, FV0A: 4)"};
+  Configurable<int> centDetector{"centDetector", 0, "Detector for centrality estimation (V0A: 0, T0M: 1, T0A: 2, T0C: 3)"};
   Configurable<int> selectionFlag{"selectionFlag", 1, "Selection Flag for hadron (e.g. 1 for skimming, 3 for topo. and kine., 7 for PID)"};
   Configurable<int> nProngs{"nProngs", 3, "Number of candidate's prong (For D0, set selectionFlag = 1 and nProngs = 2)"};
   Configurable<bool> storeMl{"storeMl", false, "Flag to store ML scores"};
@@ -136,8 +142,8 @@ struct HfTaskFlowCharmHadrons {
   /// \param cand is the candidate
   /// \param tracksQx is the X component of the Q vector for the tracks
   /// \param tracksQy is the Y component of the Q vector for the tracks
-  /// \param channel is the decay channel
-  template <int channel, typename T1>
+  /// \param DeChannel is the decay channel
+  template <DecayChannel channel, typename T1>
   void getQvecDtracks(const T1& cand,
                       std::vector<float>& tracksQx,
                       std::vector<float>& tracksQy,
@@ -158,7 +164,7 @@ struct HfTaskFlowCharmHadrons {
     tracksQx.push_back(std::cos(harmonic * phiTrack1) * pTTrack1 / ampl);
     tracksQy.push_back(std::sin(harmonic * phiTrack1) * pTTrack1 / ampl);
 
-    if constexpr (channel != DecayChannel::D0ToPiK) {
+    if constexpr (DeChannel != DecayChannel::D0ToPiK) {
       float pXTrack2 = cand.pxProng2();
       float pYTrack2 = cand.pyProng2();
       float pTTrack2 = cand.ptProng2();
@@ -191,7 +197,9 @@ struct HfTaskFlowCharmHadrons {
   /// \param cosNPhi is the cosine of the n*phi angle
   /// \param cosDeltaPhi is the cosine of the n*(phi - evtPl) angle
   /// \param sp is the scalar product
+  /// \param evtPlReso is the event plane resolution
   /// \param outputMl are the ML scores
+  /// \param selectionFlag for D0, only 0 or1
   void fillThn(float& mass,
                float& pt,
                float& cent,
@@ -212,7 +220,7 @@ struct HfTaskFlowCharmHadrons {
   float getCentrality(CollsWithQvecs::iterator const& collision)
   {
     float cent = -999.;
-    switch (centEstimator) {
+    switch (centDetector) {
       case CentralityEstimator::FV0A:
         cent = collision.centFV0A();
         break;
@@ -241,27 +249,27 @@ struct HfTaskFlowCharmHadrons {
     float yQVec = -999.;
     float amplQVec = -999.;
     switch (qvecDetector) {
-      case QvecEstimator::FV0A:
+      case qvecEstimator::FV0A:
         xQVec = collision.qvecFV0ARe();
         yQVec = collision.qvecFV0AIm();
         break;
-      case QvecEstimator::FT0M:
+      case qvecEstimator::FT0M:
         xQVec = collision.qvecFT0MRe();
         yQVec = collision.qvecFT0MIm();
         break;
-      case QvecEstimator::FT0A:
+      case qvecEstimator::FT0A:
         xQVec = collision.qvecFT0ARe();
         yQVec = collision.qvecFT0AIm();
         break;
-      case QvecEstimator::FT0C:
+      case qvecEstimator::FT0C:
         xQVec = collision.qvecFT0CRe();
         yQVec = collision.qvecFT0CIm();
-      case QvecEstimator::TPCPos:
+      case qvecEstimator::TPCPos:
         xQVec = collision.qvecBPosRe();
         yQVec = collision.qvecBPosIm();
         amplQVec = collision.nTrkBPos();
         break;
-      case QvecEstimator::TPCNeg:
+      case qvecEstimator::TPCNeg:
         xQVec = collision.qvecBNegRe();
         yQVec = collision.qvecBNegIm();
         amplQVec = collision.nTrkBNeg();
@@ -323,7 +331,7 @@ struct HfTaskFlowCharmHadrons {
       float phiCand = candidate.phi();
 
       // If TPC is used for the SP estimation, the tracks of the hadron candidate must be removed from the TPC Q vector to avoid double counting
-      if (qvecDetector == QvecEstimator::TPCNeg || qvecDetector == QvecEstimator::TPCPos) {
+      if (qvecDetector == qvecEstimator::TPCNeg || qvecDetector == qvecEstimator::TPCPos) {
         float ampl = amplQVec - static_cast<float>(nProngs);
         std::vector<float> tracksQx = {};
         std::vector<float> tracksQy = {};
@@ -332,6 +340,7 @@ struct HfTaskFlowCharmHadrons {
         for (auto iTrack{0u}; iTrack < tracksQx.size(); ++iTrack) {
           xQVec -= tracksQx[iTrack];
           yQVec -= tracksQy[iTrack];
+        }
         }
       }
 
