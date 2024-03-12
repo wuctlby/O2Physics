@@ -24,21 +24,23 @@
 #include "PWGHF/Core/HfHelper.h"
 #include "PWGHF/DataModel/CandidateSelectionTables.h"
 #include "PWGHF/DataModel/CandidateReconstructionTables.h"
+#include "PWGHF/DataModel/CandidateReconstructionTables.h"
 
 using namespace o2;
 using namespace o2::aod;
 using namespace o2::framework;
 using namespace o2::framework::expressions;
+using namespace o2::aod::hf_collision_centrality;
 
 enum DecayChannel { DplusToPiKPi = 0,
                     DsToKKPi,
                     DsToPiKK,
                     D0ToPiK };
 
-enum centralityEstimator { V0A = 0,
+/*enum centralityEstimator { V0A = 0,
                            T0M,
                            T0A,
-                           T0C };
+                           T0C };*/
 
 enum qvecEstimator { FV0A = 0,
                      FT0M,
@@ -219,16 +221,16 @@ struct HfTaskFlowCharmHadrons {
   {
     float cent = -999.;
     switch (centDetector) {
-      case centralityEstimator::V0A:
+      case CentralityEstimator::FV0A:
         cent = collision.centFV0A();
         break;
-      case centralityEstimator::T0M:
+      case CentralityEstimator::FT0M:
         cent = collision.centFT0M();
         break;
-      case centralityEstimator::T0A:
+      case CentralityEstimator::FT0A:
         cent = collision.centFT0A();
         break;
-      case centralityEstimator::T0C:
+      case CentralityEstimator::FT0C:
         cent = collision.centFT0C();
         break;
       default:
