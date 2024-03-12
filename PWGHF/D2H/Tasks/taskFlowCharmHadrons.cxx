@@ -141,34 +141,34 @@ struct HfTaskFlowCharmHadrons {
   /// \param tracksQx is the X component of the Q vector for the tracks
   /// \param tracksQy is the Y component of the Q vector for the tracks
   /// \param DeChannel is the decay channel
-  template <int DeChannel, typename T1>
+  template <DecayChannel channel, typename T1>
   void getQvecDtracks(const T1& cand,
                       std::vector<float>& tracksQx,
                       std::vector<float>& tracksQy,
                       float& ampl)
   {
     // TODO: add possibility to consider different weights for the tracks, at the moment only pT is considered;
-    float pXtrack0 = cand.pxProng0();
-    float pYtrack0 = cand.pyProng0();
-    float pTtrack0 = cand.ptProng0();
-    float phiTrack0 = std::atan2(pYtrack0, pXtrack0);
-    float pXtrack1 = cand.pxProng1();
-    float pYtrack1 = cand.pyProng1();
-    float pTtrack1 = cand.ptProng1();
-    float phiTrack1 = std::atan2(pYtrack1, pXtrack1);
+    float pXTrack0 = cand.pxProng0();
+    float pYTrack0 = cand.pyProng0();
+    float pTTrack0 = cand.ptProng0();
+    float phiTrack0 = std::atan2(pYTrack0, pXTrack0);
+    float pXTrack1 = cand.pxProng1();
+    float pYTrack1 = cand.pyProng1();
+    float pTTrack1 = cand.ptProng1();
+    float phiTrack1 = std::atan2(pYTrack1, pXTrack1);
 
-    tracksQx.push_back(std::cos(harmonic * phiTrack0) * pTtrack0 / ampl);
-    tracksQy.push_back(std::sin(harmonic * phiTrack0) * pTtrack0 / ampl);
-    tracksQx.push_back(std::cos(harmonic * phiTrack1) * pTtrack1 / ampl);
-    tracksQy.push_back(std::sin(harmonic * phiTrack1) * pTtrack1 / ampl);
+    tracksQx.push_back(std::cos(harmonic * phiTrack0) * pTTrack0 / ampl);
+    tracksQy.push_back(std::sin(harmonic * phiTrack0) * pTTrack0 / ampl);
+    tracksQx.push_back(std::cos(harmonic * phiTrack1) * pTTrack1 / ampl);
+    tracksQy.push_back(std::sin(harmonic * phiTrack1) * pTTrack1 / ampl);
 
     if constexpr (DeChannel != DecayChannel::D0ToPiK) {
-      float pXtrack2 = cand.pxProng2();
-      float pYtrack2 = cand.pyProng2();
-      float pTtrack2 = cand.ptProng2();
-      float phiTrack2 = std::atan2(pYtrack2, pXtrack2);
-      tracksQx.push_back(std::cos(harmonic * phiTrack2) * pTtrack2 / ampl);
-      tracksQy.push_back(std::sin(harmonic * phiTrack2) * pTtrack2 / ampl);
+      float pXTrack2 = cand.pxProng2();
+      float pYTrack2 = cand.pyProng2();
+      float pTTrack2 = cand.ptProng2();
+      float phiTrack2 = std::atan2(pYTrack2, pXTrack2);
+      tracksQx.push_back(std::cos(harmonic * phiTrack2) * pTTrack2 / ampl);
+      tracksQy.push_back(std::sin(harmonic * phiTrack2) * pTTrack2 / ampl);
     }
   }
 
@@ -334,18 +334,11 @@ struct HfTaskFlowCharmHadrons {
         std::vector<float> tracksQx = {};
         std::vector<float> tracksQy = {};
 
-        if constexpr (DecayChannel == DecayChannel::D0ToPiK) {
-          getQvecDtracks<DecayChannel>(candidate, tracksQx, tracksQy, ampl);
-          for (unsigned int itrack = 0; itrack < 2; itrack++) {
-            xQVec -= tracksQx[itrack];
-            yQVec -= tracksQy[itrack];
-          }
-        } else {
-          getQvecDtracks<DecayChannel>(candidate, tracksQx, tracksQy, ampl);
-          for (unsigned int itrack = 0; itrack < 3; itrack++) {
-            xQVec -= tracksQx[itrack];
-            yQVec -= tracksQy[itrack];
-          }
+        getQvecDtracks<DecayChannel>(candidate, tracksQx, tracksQy, ampl);
+        for (auto iTrack{0u}; iTrack < tracksQx.size(); ++iTrack) {
+          xQVec -= tracksQx[iTrack];
+          yQVec -= tracksQy[iTrack];
+        }
         }
       }
 
