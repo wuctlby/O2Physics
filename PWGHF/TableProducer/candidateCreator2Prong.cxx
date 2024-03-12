@@ -310,6 +310,11 @@ struct HfCandidateCreator2Prong {
         continue;
       }
 
+      /// event selection: sel8, PV posZ, TF border cut
+      if (!isHfCollisionSelected(collision, useSel8Trigger, maxPvPosZ, useTimeFrameBorderCut)) {
+        continue;
+      }
+
       auto track0 = rowTrackIndexProng2.template prong0_as<TTracks>();
       auto track1 = rowTrackIndexProng2.template prong1_as<TTracks>();
 
