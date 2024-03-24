@@ -355,7 +355,7 @@ struct HfTaskFlowCharmHadrons {
             break;
         }
       } else if constexpr (std::is_same<T1, CandLcData>::value || std::is_same<T1, CandLcDataWMl>::value) {
-        switch (DecayChannel) {
+        switch (channel) {
           case DecayChannel::LcToPKPi:
             massCand = hfHelper.invMassLcToPKPi(candidate);
             if constexpr (std::is_same<T1, CandLcDataWMl>::value) {
@@ -463,7 +463,7 @@ struct HfTaskFlowCharmHadrons {
 
   // Lc with rectangular cuts
   void processLc(CollsWithQvecs::iterator const& collision,
-                 CandD0Data const& candidatesLc)
+                 CandLcData const& candidatesLc)
   {
     runFlowAnalysis<DecayChannel::LcToPKPi, Partition<CandLcData>>(collision, selectedLcToPKPi);
     runFlowAnalysis<DecayChannel::LcToPiKP, Partition<CandLcData>>(collision, selectedLcToPiKP);
