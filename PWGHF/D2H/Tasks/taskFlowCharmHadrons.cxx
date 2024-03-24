@@ -72,8 +72,8 @@ struct HfTaskFlowCharmHadrons {
   using CandDplusDataWMl = soa::Filtered<soa::Join<aod::HfCand3Prong, aod::HfSelDplusToPiKPi, aod::HfMlDplusToPiKPi>>;
   using CandDplusData = soa::Filtered<soa::Join<aod::HfCand3Prong, aod::HfSelDplusToPiKPi>>;
   using CandLcData = soa::Filtered<soa::Join<aod::HfCand3Prong, aod::HfSelLc>>;
-  using CandLcDatawMl = soa::Filtered<soa::Join<aod::HfCand3Prong, aod::HfSelLc, HfMlLcToPKPi>>; // For LcToPKPI. TODO: LctoK0sP
-  using CandD0DatawMl = soa::Filtered<soa::Join<aod::HfCand2Prong, aod::HfSelD0, aod::HfMlD0>>;
+  using CandLcDataWMl = soa::Filtered<soa::Join<aod::HfCand3Prong, aod::HfSelLc, HfMlLcToPKPi>>; // For LcToPKPI. TODO: LctoK0sP
+  using CandD0DataWMl = soa::Filtered<soa::Join<aod::HfCand2Prong, aod::HfSelD0, aod::HfMlD0>>;
   using CandD0Data = soa::Filtered<soa::Join<aod::HfCand2Prong, aod::HfSelD0>>;
   using CollsWithQvecs = soa::Join<aod::Collisions, aod::EvSels, aod::QvectorFT0Cs, aod::QvectorFT0As, aod::QvectorFT0Ms, aod::QvectorFV0As, aod::QvectorBPoss, aod::QvectorBNegs, aod::CentFV0As, aod::CentFT0Ms, aod::CentFT0As, aod::CentFT0Cs>;
 
@@ -84,16 +84,16 @@ struct HfTaskFlowCharmHadrons {
 
   Partition<CandDsData> selectedDsToKKPi = aod::hf_sel_candidate_ds::isSelDsToKKPi >= selectionFlag;
   Partition<CandDsData> selectedDsToPiKK = aod::hf_sel_candidate_ds::isSelDsToPiKK >= selectionFlag;
-  Partition<CandDsDatawMl> selectedDsToKKPiwMl = aod::hf_sel_candidate_ds::isSelDsToKKPi >= selectionFlag;
-  Partition<CandDsDatawMl> selectedDsToPiKKwMl = aod::hf_sel_candidate_ds::isSelDsToPiKK >= selectionFlag;
+  Partition<CandDsDataWMl> selectedDsToKKPiWMl = aod::hf_sel_candidate_ds::isSelDsToKKPi >= selectionFlag;
+  Partition<CandDsDataWMl> selectedDsToPiKKWMl = aod::hf_sel_candidate_ds::isSelDsToPiKK >= selectionFlag;
   Partition<CandD0Data> selectedD0ToPiK = aod::hf_sel_candidate_d0::isSelD0 >= selectionFlag;
   Partition<CandD0Data> selectedD0ToKPi = aod::hf_sel_candidate_d0::isSelD0bar >= selectionFlag;
-  Partition<CandD0DatawMl> selectedD0ToPiKwMl = aod::hf_sel_candidate_d0::isSelD0 >= selectionFlag;
-  Partition<CandD0DatawMl> selectedD0ToKPiwMl = aod::hf_sel_candidate_d0::isSelD0bar >= selectionFlag;
+  Partition<CandD0DataWMl> selectedD0ToPiKWMl = aod::hf_sel_candidate_d0::isSelD0 >= selectionFlag;
+  Partition<CandD0DataWMl> selectedD0ToKPiWMl = aod::hf_sel_candidate_d0::isSelD0bar >= selectionFlag;
   Partition<CandLcData> selectedLcToPKPi = aod::hf_sel_candidate_lc::isSelLcToPKPi >= selectionFlag;
   Partition<CandLcData> selectedLcToPiKP = aod::hf_sel_candidate_lc::isSelLcToPiKP >= selectionFlag;
-  Partition<CandLcDatawMl> selectedLcToPKPiwMl = aod::hf_sel_candidate_lc::isSelLcToPKPi >= selectionFlag;
-  Partition<CandLcDatawMl> selectedLcToPiKPwMl = aod::hf_sel_candidate_lc::isSelLcToPiKP >= selectionFlag;
+  Partition<CandLcDataWMl> selectedLcToPKPiWMl = aod::hf_sel_candidate_lc::isSelLcToPKPi >= selectionFlag;
+  Partition<CandLcDataWMl> selectedLcToPiKPWMl = aod::hf_sel_candidate_lc::isSelLcToPiKP >= selectionFlag;
 
   HfHelper hfHelper;
   EventPlaneHelper epHelper;
@@ -354,18 +354,18 @@ struct HfTaskFlowCharmHadrons {
           default:
             break;
         }
-      } else if constexpr (std::is_same<T1, CandLcData>::value || std::is_same<T1, CandLcDatawMl>::value) {
+      } else if constexpr (std::is_same<T1, CandLcData>::value || std::is_same<T1, CandLcDataWMl>::value) {
         switch (DecayChannel) {
           case DecayChannel::LcToPKPi:
             massCand = hfHelper.invMassLcToPKPi(candidate);
-            if constexpr (std::is_same<T1, CandLcDatawMl>::value) {
+            if constexpr (std::is_same<T1, CandLcDataWMl>::value) {
               for (unsigned int iclass = 0; iclass < classMl->size(); iclass++)
                 outputMl[iclass] = candidate.mlProbLcToPKPi()[classMl->at(iclass)];
             }
             break;
           case DecayChannel::LcToPiKP:
             massCand = hfHelper.invMassLcToPiKP(candidate);
-            if constexpr (std::is_same<T1, CandLcDatawMl>::value) {
+            if constexpr (std::is_same<T1, CandLcDataWMl>::value) {
               for (unsigned int iclass = 0; iclass < classMl->size(); iclass++)
                 outputMl[iclass] = candidate.mlProbLcToPiKP()[classMl->at(iclass)];
             }
@@ -454,10 +454,10 @@ struct HfTaskFlowCharmHadrons {
 
   // Lc with ML
   void processLcMl(CollsWithQvecs::iterator const& collision,
-                   CandLcDatawMl const& candidatesLc)
+                   CandLcDataWMl const& candidatesLc)
   {
-    runFlowAnalysis<DecayChannel::LcToPKPi, Partition<CandLcDatawMl>>(collision, selectedLcToPKPiwMl);
-    runFlowAnalysis<DecayChannel::LcToPiKP, Partition<CandLcDatawMl>>(collision, selectedLcToPiKPwMl);
+    runFlowAnalysis<DecayChannel::LcToPKPi, Partition<CandLcDataWMl>>(collision, selectedLcToPKPiWMl);
+    runFlowAnalysis<DecayChannel::LcToPiKP, Partition<CandLcDataWMl>>(collision, selectedLcToPiKPWMl);
   }
   PROCESS_SWITCH(HfTaskFlowCharmHadrons, processLcMl, "Process Lc candidates with ML", false);
 
