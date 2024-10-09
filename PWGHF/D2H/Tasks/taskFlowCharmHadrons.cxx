@@ -242,13 +242,13 @@ struct HfTaskFlowCharmHadrons {
   {
     if (storeMl) {
       if (storeEP) {
-        registry.fill(HIST("hSparseFlowCharm"), mass, pt, cent, cosNPhi, cosDeltaPhi, sp, outputMl[0], outputMl[1]);
+        registry.fill(HIST("hSparseFlowCharm"), mass, pt, cent, sp, cosNPhi, cosDeltaPhi, outputMl[0], outputMl[1]);
       } else {
         registry.fill(HIST("hSparseFlowCharm"), mass, pt, cent, sp, outputMl[0], outputMl[1]);
       }
     } else {
       if (storeEP) {
-        registry.fill(HIST("hSparseFlowCharm"), mass, pt, cent, cosNPhi, cosDeltaPhi, sp);
+        registry.fill(HIST("hSparseFlowCharm"), mass, pt, cent, sp, cosNPhi, cosDeltaPhi);
       } else {
         registry.fill(HIST("hSparseFlowCharm"), mass, pt, cent, sp);
       }
