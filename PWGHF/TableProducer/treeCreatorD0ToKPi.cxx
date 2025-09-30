@@ -46,7 +46,6 @@ namespace o2::aod
 {
 namespace full
 {
-DECLARE_SOA_INDEX_COLUMN(Collision, collision);
 DECLARE_SOA_COLUMN(RSecondaryVertex, rSecondaryVertex, float);
 DECLARE_SOA_COLUMN(PtProng0, ptProng0, float);
 DECLARE_SOA_COLUMN(PProng0, pProng0, float);
@@ -94,7 +93,6 @@ DECLARE_SOA_INDEX_COLUMN(McParticle, mcParticle);
 // Events
 DECLARE_SOA_COLUMN(IsEventReject, isEventReject, int);
 DECLARE_SOA_COLUMN(RunNumber, runNumber, int);
-DECLARE_SOA_INDEX_COLUMN(McCollision, mcCollision);
 } // namespace full
 namespace ml
 {
