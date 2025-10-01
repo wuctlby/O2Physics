@@ -514,8 +514,12 @@ struct HfTreeCreatorD0ToKPi {
       rowCandidateMl.reserve(candidates.size());
     }
     for (const auto& candidate : candidates) {
+      // Only background candidates (no signal and no correlated background if not enabled)
       if constexpr (onlyBkg) {
-        if ((std::abs(candidate.flagMcMatchRec()) == o2::hf_decay::hf_cand_2prong::DecayChannelMain::D0ToPiK) || (fillCorrBkgs && (candidate.flagMcMatchRec() != 0))) {
+        if ((std::abs(candidate.flagMcMatchRec()) == o2::hf_decay::hf_cand_2prong::DecayChannelMain::D0ToPiK)) {
+          continue;
+        }
+        if (!fillCorrBkgs && std::abs(candidate.flagMcMatchRec()) > o2::hf_decay::hf_cand_2prong::DecayChannelMain::D0ToPiK) {
           continue;
         }
         if (downSampleBkgFactor < 1.) {
@@ -525,8 +529,9 @@ struct HfTreeCreatorD0ToKPi {
           }
         }
       }
+      // Only signal candidates (no background and no correlated background if not enabled)
       if constexpr (onlySig) {
-        if (fillCorrBkgs && candidate.flagMcMatchRec() == 0) {
+        if (candidate.flagMcMatchRec() == 0) {
           continue;
         }
         if (!fillCorrBkgs && std::abs(candidate.flagMcMatchRec()) != o2::hf_decay::hf_cand_2prong::DecayChannelMain::D0ToPiK) {
