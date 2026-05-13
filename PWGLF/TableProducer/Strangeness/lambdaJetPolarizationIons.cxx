@@ -26,45 +26,29 @@
 //    cicero.domenico.muncinelli@cern.ch
 //
 
-// Standard Library
-#include <cmath>
-#include <cstddef>
-#include <map>
-#include <stdexcept>
-#include <string>
-#include <vector>
-
-// PWGLF
-#include "EventSelectionParams.h"
-#include "RCTSelectionFlags.h"
-
-#include "PWGLF/DataModel/LFStrangenessPIDTables.h"
 #include "PWGLF/DataModel/lambdaJetPolarizationIons.h"
-// #include "Common/DataModel/PIDResponseTOF.h" // Maybe switch this around with LFStrangenessPIDTables?
-#include "PWGLF/DataModel/LFStrangenessTables.h" // For V0TOFPIDs and NSigmas getters. Better for considering the daughters as coming from V0s instead of from PV:
 
-// // MC
-// #include "Common/DataModel/CollisionAssociationTables.h"
-// #include "Common/DataModel/McCollisionExtra.h"
-// #include "PWGLF/DataModel/mcCentrality.h"
+#include "ctpRateFetcher.h"
 
-// PWGJE
 #include "PWGJE/Core/JetBkgSubUtils.h"
 #include "PWGJE/Core/JetUtilities.h"
+#include "PWGLF/DataModel/LFStrangenessPIDTables.h"
+#include "PWGLF/DataModel/LFStrangenessTables.h"
 
-// Common DataModel
+#include "Common/CCDB/EventSelectionParams.h"
+#include "Common/CCDB/RCTSelectionFlags.h"
+#include "Common/Core/RecoDecay.h"
 #include "Common/DataModel/Centrality.h"
 #include "Common/DataModel/EventSelection.h"
-#include "Common/DataModel/Multiplicity.h"
+#include "Common/DataModel/Multiplicity.h" // for pp
 #include "Common/DataModel/PIDResponseTPC.h"
 #include "Common/DataModel/TrackSelectionTables.h"
 
-// Common Core
-#include "Common/Core/RecoDecay.h"
-
-// Framework
+#include <CCDB/BasicCCDBManager.h>
+#include <CCDB/CcdbApi.h>
 #include <CommonConstants/MathConstants.h>
 #include <CommonConstants/PhysicsConstants.h>
+#include <DataFormatsParameters/GRPMagField.h>
 #include <Framework/ASoA.h>
 #include <Framework/AnalysisDataModel.h>
 #include <Framework/AnalysisHelpers.h>
@@ -78,14 +62,10 @@
 #include <Framework/OutputObjHeader.h>
 #include <Framework/runDataProcessing.h>
 
-// O2 subsystems
-#include "Common/CCDB/ctpRateFetcher.h"
+#include <TF1.h>
+#include <TH1.h>
+#include <TH2.h>
 
-#include <CCDB/BasicCCDBManager.h>
-#include <CCDB/CcdbApi.h>
-#include <DataFormatsParameters/GRPMagField.h>
-
-// External libraries
 #include <fastjet/AreaDefinition.hh>
 #include <fastjet/ClusterSequence.hh>
 #include <fastjet/ClusterSequenceArea.hh>
@@ -94,10 +74,12 @@
 #include <fastjet/PseudoJet.hh>
 #include <sys/types.h>
 
-// ROOT math
-#include <TF1.h>
-#include <TH1.h>
-#include <TH2.h>
+#include <cmath>
+#include <cstddef>
+#include <map>
+#include <stdexcept>
+#include <string>
+#include <vector>
 
 using namespace o2;
 using namespace o2::framework;
@@ -156,7 +138,7 @@ struct lambdajetpolarizationions {
   // } products;
   Produces<o2::aod::RingLaV0s> tableV0s;
   Produces<o2::aod::RingJets> tableJets;
-  Produces<o2::aod::RingLeadP> tableLeadParticles;
+  Produces<o2::aod::RingLeadPs> tableLeadParticles;
   Produces<o2::aod::RingCollisions> tableCollisions;
 
   // Define histogram registries:
@@ -274,7 +256,7 @@ struct lambdajetpolarizationions {
     Configurable<std::string> phiHighCut{"phiHighCut", "0.1/x+pi/18.0+0.06", "High azimuth cut parametrisation"};
 
     // PID (TPC/TOF)
-    Configurable<float> tpcPidNsigmaCut{"tpcPidNsigmaCut", 3, "tpcPidNsigmaCut"}; // Default is 5. Reduced to agree with strangenessInJetsIons
+    Configurable<float> tpcPidNsigmaCut{"tpcPidNsigmaCut", 4, "tpcPidNsigmaCut"}; // Default is 5
     Configurable<float> tofPidNsigmaCutLaPr{"tofPidNsigmaCutLaPr", 1e+6, "tofPidNsigmaCutLaPr"};
     Configurable<float> tofPidNsigmaCutLaPi{"tofPidNsigmaCutLaPi", 1e+6, "tofPidNsigmaCutLaPi"};
 

@@ -17,30 +17,43 @@
 #include "PWGEM/Dilepton/Core/DielectronCut.h"
 #include "PWGEM/Dilepton/Core/EMEventCut.h"
 #include "PWGEM/Dilepton/DataModel/dileptonTables.h"
-#include "PWGEM/Dilepton/Utils/EMTrack.h"
-#include "PWGEM/Dilepton/Utils/EventHistograms.h"
 #include "PWGEM/Dilepton/Utils/PairUtilities.h"
 
-#include "Common/Core/RecoDecay.h"
-#include "Common/Core/trackUtilities.h"
+#include "Common/DataModel/Centrality.h"
+#include "Common/DataModel/EventSelection.h"
 
-#include "CCDB/BasicCCDBManager.h"
-#include "DataFormatsParameters/GRPMagField.h"
-#include "DataFormatsParameters/GRPObject.h"
-#include "DetectorsBase/GeometryManager.h"
-#include "DetectorsBase/Propagator.h"
-#include "Framework/ASoAHelpers.h"
-#include "Framework/AnalysisTask.h"
-#include "Framework/runDataProcessing.h"
+#include <CCDB/BasicCCDBManager.h>
+#include <CCDB/CcdbApi.h>
+#include <CommonConstants/PhysicsConstants.h>
+#include <DataFormatsParameters/GRPMagField.h>
+#include <DataFormatsParameters/GRPObject.h>
+#include <DetectorsBase/Propagator.h>
+#include <Framework/ASoA.h>
+#include <Framework/ASoAHelpers.h>
+#include <Framework/AnalysisHelpers.h>
+#include <Framework/AnalysisTask.h>
+#include <Framework/Configurable.h>
+#include <Framework/Expressions.h>
+#include <Framework/HistogramRegistry.h>
+#include <Framework/HistogramSpec.h>
+#include <Framework/InitContext.h>
+#include <Framework/OutputObjHeader.h>
+#include <Framework/SliceCache.h>
+#include <Framework/runDataProcessing.h>
+#include <MathUtils/Utils.h>
 
-#include "Math/Vector4D.h"
-#include "TString.h"
+#include <Math/Vector4D.h> // IWYU pragma: keep (do not replace with Math/Vector4Dfwd.h)
+#include <Math/Vector4Dfwd.h>
 
-#include <map>
+#include <cmath>
+#include <cstddef>
+#include <cstdint>
 #include <string>
 #include <tuple>
 #include <unordered_map>
 #include <vector>
+
+#include <math.h>
 
 using namespace o2;
 using namespace o2::aod;
@@ -256,7 +269,6 @@ struct prefilterDielectron {
     fEMEventCut.SetRequireGoodZvtxFT0vsPV(eventcuts.cfgRequireGoodZvtxFT0vsPV);
   }
 
-  o2::analysis::MlResponseDielectronSingleTrack<float> mlResponseSingleTrack;
   void DefineDielectronCut()
   {
     fDielectronCut = DielectronCut("fDielectronCut", "fDielectronCut");
@@ -314,31 +326,6 @@ struct prefilterDielectron {
         thresholdsML.emplace_back(dielectroncuts.cutsMl.value[i]);
       }
       fDielectronCut.SetMLThresholds(binsML, thresholdsML);
-
-      // static constexpr int nClassesMl = 2;
-      // const std::vector<int> cutDirMl = {o2::cuts_ml::CutSmaller, o2::cuts_ml::CutNot};
-      // const std::vector<std::string> labelsClasses = {"Signal", "Background"};
-      // const uint32_t nBinsMl = dielectroncuts.binsMl.value.size() - 1;
-      // const std::vector<std::string> labelsBins(nBinsMl, "bin");
-      // double cutsMlArr[nBinsMl][nClassesMl];
-      // for (uint32_t i = 0; i < nBinsMl; i++) {
-      //   cutsMlArr[i][0] = dielectroncuts.cutsMl.value[i];
-      //   cutsMlArr[i][1] = 0.;
-      // }
-      // o2::framework::LabeledArray<double> cutsMl = {cutsMlArr[0], nBinsMl, nClassesMl, labelsBins, labelsClasses};
-
-      // mlResponseSingleTrack.configure(dielectroncuts.binsMl.value, cutsMl, cutDirMl, nClassesMl);
-      // if (dielectroncuts.loadModelsFromCCDB) {
-      //   ccdbApi.init(ccdburl);
-      //   mlResponseSingleTrack.setModelPathsCCDB(dielectroncuts.onnxFileNames.value, ccdbApi, dielectroncuts.onnxPathsCCDB.value, dielectroncuts.timestampCCDB.value);
-      // } else {
-      //   mlResponseSingleTrack.setModelPathsLocal(dielectroncuts.onnxFileNames.value);
-      // }
-      // mlResponseSingleTrack.cacheInputFeaturesIndices(dielectroncuts.namesInputFeatures);
-      // mlResponseSingleTrack.cacheBinningIndex(dielectroncuts.nameBinningFeature);
-      // mlResponseSingleTrack.init(dielectroncuts.enableOptimizations.value);
-
-      // fDielectronCut.SetPIDMlResponse(&mlResponseSingleTrack);
     } // end of PID ML
   }
 

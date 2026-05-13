@@ -30,6 +30,8 @@
 //    cicero.domenico.muncinelli@cern.ch
 //
 
+#include "PWGLF/DataModel/lambdaJetPolarizationIons.h"
+
 #include <CommonConstants/MathConstants.h>
 #include <CommonConstants/PhysicsConstants.h>
 #include <Framework/ASoA.h>
@@ -42,22 +44,17 @@
 #include <Framework/OutputObjHeader.h>
 #include <Framework/runDataProcessing.h>
 
-// Custom data model:
-#include "PWGLF/DataModel/lambdaJetPolarizationIons.h"
+#include <Math/GenVector/VectorUtil.h>
+#include <Math/Vector3Dfwd.h>
+#include <Math/Vector4D.h> // IWYU pragma: keep (do not replace with Math/Vector4Dfwd.h)
+#include <Math/Vector4Dfwd.h>
+#include <TProfile.h>
+#include <TRandom3.h> // For perpendicular jet direction QAs
 
 #include <cmath>
 #include <optional>
 #include <string>
 #include <vector>
-
-// #include <TLorentzVector.h>
-// #include <TVector3.h>
-// New recommended format:
-#include <Math/Vector3D.h> // clang-tidy usually confuses this! Careful!
-#include <Math/Vector4D.h>
-#include <Math/VectorUtil.h>
-#include <TProfile.h>
-#include <TRandom3.h> // For perpendicular jet direction QAs
 
 using namespace o2;
 using namespace o2::framework;
@@ -432,9 +429,9 @@ struct lambdajetpolarizationionsderived {
   // (TODO: test using custom grouping)
   Preslice<aod::RingJets> perColJets = o2::aod::lambdajetpol::ringCollisionId;
   Preslice<aod::RingLaV0s> perColV0s = o2::aod::lambdajetpol::ringCollisionId;
-  Preslice<aod::RingLeadP> perColLeadPs = o2::aod::lambdajetpol::ringCollisionId;
+  Preslice<aod::RingLeadPs> perColLeadPs = o2::aod::lambdajetpol::ringCollisionId;
   void processPolarizationData(o2::aod::RingCollisions const& collisions, o2::aod::RingJets const& jets, o2::aod::RingLaV0s const& v0s,
-                               o2::aod::RingLeadP const& leadPs)
+                               o2::aod::RingLeadPs const& leadPs)
   {
     for (auto const& collision : collisions) {
       const auto collId = collision.globalIndex(); // The self-index accessor
